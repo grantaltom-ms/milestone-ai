@@ -358,16 +358,19 @@ vercel deploy --prod
 
 Make sure production and preview Vercel environments include the required server-side env vars.
 
-## Open Decisions
+## Decisions
+
+Resolved:
+
+- **Sidebar default:** Expanded.
+- **Delinquency snapshot retention:** Keep raw delinquency report snapshots for six weeks (42 days), then drop old snapshots. Run/candidate rows remain the durable audit trail.
+- **Bulletin board source:** Supabase for now (may change later).
+- **Vacancy readiness source:** AppFolio.
+- **Charges assessed source:** Prefer the month's delinquency data if accurate enough; try a few options to find the most accurate source. Falls back to the rent-roll-based number until validated.
 
 Still to decide:
 
-- Whether the sidebar defaults expanded or collapsed.
-- How long delinquency report snapshots should be retained.
-- Whether indefinite exclusions should be property-specific, occupancy-specific, or tenant-specific.
-- Where bulletin board data should live: Supabase, Google Calendar, manual app entry, or a combination.
-- Where vacancy readiness should come from: AppFolio, a manual tracker, or another source.
-- Whether charges assessed should remain rent-roll-based or switch to a true posted-charge ledger source.
+- Whether indefinite exclusions should be property-specific, occupancy-specific, or tenant-specific. (Set aside for now.)
 
 ## Related Docs
 
