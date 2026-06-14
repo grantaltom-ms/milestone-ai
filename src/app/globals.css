@@ -3,21 +3,40 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Milestone brand palette */
+  --paper: #f7f1e6;
+  --paper-raised: #fffaf2;
+  --navy: #16273f;
+  --navy-soft: #20355330;
+  --evergreen: #1f4534;
+  --evergreen-soft: #1f453522;
+  --ink: #1f2a37;
+  --ink-muted: #5b6470;
+  --line: #e4d9c6;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: var(--paper);
+  --foreground: var(--ink);
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+@layer components {
+  /* Border-first card */
+  .ms-card {
+    @apply rounded-lg border border-line bg-paper-raised p-6;
+  }
+
+  .ms-card-title {
+    @apply font-heading text-lg font-semibold text-navy;
+  }
+
+  .ms-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-ink-muted;
+  }
 }
 
 @layer utilities {
