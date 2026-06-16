@@ -43,7 +43,7 @@ export default async function DelinquencyReview({
 }: {
   searchParams: Record<string, string | string[] | undefined>
 }) {
-  const rawFilter = searchParams?.filter
+  const rawFilter = searchParams?.status
   const filter: FilterTab =
     typeof rawFilter === "string" && ["all", "pending", "approved", "excluded"].includes(rawFilter)
       ? (rawFilter as FilterTab)
@@ -78,7 +78,7 @@ export default async function DelinquencyReview({
         {TABS.map((tab) => (
           <Link
             key={tab.value}
-            href={`/delinquency?filter=${tab.value}`}
+            href={`/delinquency?status=${tab.value}`}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               filter === tab.value
                 ? "border-b-2 border-navy text-navy"

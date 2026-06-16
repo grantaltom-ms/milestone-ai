@@ -35,7 +35,7 @@ export default async function PovNotices({
 }: {
   searchParams: Record<string, string | string[] | undefined>
 }) {
-  const rawFilter = searchParams?.filter
+  const rawFilter = searchParams?.status
   const filter: FilterTab =
     typeof rawFilter === "string" &&
     ["all", "draft", "approved", "served", "voided"].includes(rawFilter)
@@ -70,7 +70,7 @@ export default async function PovNotices({
         {TABS.map((tab) => (
           <Link
             key={tab.value}
-            href={`/pov-notices?filter=${tab.value}`}
+            href={`/pov-notices?status=${tab.value}`}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               filter === tab.value
                 ? "border-b-2 border-navy text-navy"

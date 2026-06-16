@@ -20,7 +20,25 @@ export type Candidate = {
   created_at: string
 }
 
-function ActionStateBadge({ state }: { state: string }) {
+function ActionStateBadge({
+  state,
+  reviewStatus,
+}: {
+  state: string
+  reviewStatus: string
+}) {
+  // Approved via Skip with no outreach yet → "Skipped"
+  if (
+    reviewStatus === "approved" &&
+    (state === "candidate_found" || !state)
+  ) {
+    return (
+      <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
+        Skipped
+      </span>
+    )
+  }
+
   switch (state) {
     case "email_sent":
     case "sms_sent":
@@ -62,7 +80,7 @@ function ActionStateBadge({ state }: { state: string }) {
 export default function CandidateRow({ candidate }: { candidate: Candidate }) {
   const [isPending, startTransition] = useTransition()
 
-  const { id, tenant_name, property_name, unit, balance_owed, action_state } = candidate
+  const { id, tenant_name, property_name, unit, balance_owed, action_state, review_status } = candidate
 
   const povDisabled = action_state === "pov_draft_created"
   const emailDisabled = ["email_sent", "sms_sent", "pov_draft_created"].includes(action_state)
@@ -92,7 +110,7 @@ export default function CandidateRow({ candidate }: { candidate: Candidate }) {
         <p className="text-sm font-medium text-navy tabular-nums">{fmtBalance}</p>
       </td>
       <td className="py-3 pr-4">
-        <ActionStateBadge state={action_state} />
+        <ActionStateBadge state={action_state} reviewStatus={review_status} />
       </td>
       <td className="py-3">
         <div className="flex items-center gap-2">
