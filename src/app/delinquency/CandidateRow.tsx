@@ -1,6 +1,6 @@
 "use client"
 
-import { useTransition } from "react"
+import { useState, useTransition } from "react"
 import {
   excludeCandidate,
   skipCandidate,
@@ -79,6 +79,7 @@ function ActionStateBadge({
 
 export default function CandidateRow({ candidate }: { candidate: Candidate }) {
   const [isPending, startTransition] = useTransition()
+  const [inlineError, setInlineError] = useState<string | null>(null)
 
   const { id, tenant_name, property_name, unit, balance_owed, action_state, review_status } = candidate
 
@@ -92,62 +93,75 @@ export default function CandidateRow({ candidate }: { candidate: Candidate }) {
   })
 
   function run(fn: () => Promise<void>) {
+    setInlineError(null)
     startTransition(async () => {
-      await fn()
+      try {
+        await fn()
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : "Something went wrong"
+        setInlineError(msg)
+        // Auto-clear after 6 seconds
+        setTimeout(() => setInlineError(null), 6000)
+      }
     })
   }
 
   return (
-    <tr className="border-b border-line last:border-0">
-      <td className="py-3 pr-4">
-        <p className="text-sm font-medium text-navy">{tenant_name}</p>
-      </td>
-      <td className="py-3 pr-4">
-        <p className="text-sm text-ink-muted">{property_name}</p>
-        <p className="text-xs text-ink-muted">Unit {unit}</p>
-      </td>
-      <td className="py-3 pr-4">
-        <p className="text-sm font-medium text-navy tabular-nums">{fmtBalance}</p>
-      </td>
-      <td className="py-3 pr-4">
-        <ActionStateBadge state={action_state} reviewStatus={review_status} />
-      </td>
-      <td className="py-3">
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={povDisabled || isPending}
-            onClick={() => run(() => createPovDraft(id))}
-            className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-navy transition-colors hover:bg-paper-raised disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Create POV
-          </button>
-          <button
-            type="button"
-            disabled={emailDisabled || isPending}
-            onClick={() => run(() => sendEmail(id))}
-            className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-navy transition-colors hover:bg-paper-raised disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Email
-          </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => run(() => excludeCandidate(id))}
-            className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Exclude
-          </button>
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => run(() => skipCandidate(id))}
-            className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-ink-muted transition-colors hover:bg-paper-raised disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            Skip
-          </button>
-        </div>
-      </td>
-    </tr>
+    <>
+      <tr className="border-b border-line last:border-0">
+        <td className="py-3 pr-4">
+          <p className="text-sm font-medium text-navy">{tenant_name}</p>
+        </td>
+        <td className="py-3 pr-4">
+          <p className="text-sm text-ink-muted">{property_name}</p>
+          <p className="text-xs text-ink-muted">Unit {unit}</p>
+        </td>
+        <td className="py-3 pr-4">
+          <p className="text-sm font-medium text-navy tabular-nums">{fmtBalance}</p>
+        </td>
+        <td className="py-3 pr-4">
+          <ActionStateBadge state={action_state} reviewStatus={review_status} />
+        </td>
+        <td className="py-3">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              disabled={povDisabled || isPending}
+              onClick={() => run(() => createPovDraft(id))}
+              className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-navy transition-colors hover:bg-paper-raised disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Create POV
+            </button>
+            <button
+              type="button"
+              disabled={emailDisabled || isPending}
+              onClick={() => run(() => sendEmail(id))}
+              className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-navy transition-colors hover:bg-paper-raised disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Email
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => run(() => excludeCandidate(id))}
+              className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Exclude
+            </button>
+            <button
+              type="button"
+              disabled={isPending}
+              onClick={() => run(() => skipCandidate(id))}
+              className="rounded border border-line bg-paper px-2.5 py-1 text-xs font-medium text-ink-muted transition-colors hover:bg-paper-raised disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Skip
+            </button>
+          </div>
+          {inlineError && (
+            <p className="mt-1 text-xs text-red-600">{inlineError}</p>
+          )}
+        </td>
+      </tr>
+    </>
   )
 }
