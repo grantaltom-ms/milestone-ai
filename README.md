@@ -14,6 +14,7 @@ Built so far:
 - Collapsible left sidebar.
 - Home dashboard with money movement, bulletin board, and vacancy sections.
 - Supabase-backed money movement card.
+- Major assets by property page with searchable building selector.
 - Delinquency review queue architecture.
 - Candidate action endpoints for email, SMS, POV drafts, and exclusions.
 - Cached AppFolio delinquency report snapshots.
@@ -26,6 +27,7 @@ The first version of the app focuses on four sidebar sections:
 
 ```text
 Home
+Major assets
 Delinquency review
 POV notices
 Reports
@@ -79,6 +81,32 @@ The card also calculates:
 Important caveat:
 
 The current "charges assessed" number is based on scheduled monthly rent from rent roll. It may not include all utility, fee, or other posted tenant charges. For true all-in assessed charges, the app will likely need a dedicated AppFolio tenant ledger/charge export or a Supabase table for posted tenant charges.
+
+## Major Assets by Property
+
+The major assets page is available at:
+
+```text
+/major-assets
+```
+
+Purpose:
+
+- Look up major building systems (roof, boiler, plumbing, electrical, heat, and more) by property.
+- Show the year each system was last updated and which vendor performed the work.
+- Scope V1 to Grant Carlson and Conor Murphy managed buildings.
+
+Data model:
+
+- `properties` — managed building registry with manager assignment.
+- `property_major_assets` — one row per asset type per property with last updated year, vendor, and notes.
+
+The page includes:
+
+- Searchable building dropdown.
+- Manager filter pills (All / Grant Carlson / Conor Murphy).
+- Shareable URL via `?property=<uuid>`.
+- Demo fallback when Supabase env vars are not configured.
 
 ## Delinquency Review Queue
 
@@ -253,10 +281,14 @@ complete
 
 ```text
 src/app/page.tsx                         # Internal hub homepage
+src/app/major-assets/page.tsx            # Major assets by property page
+src/app/major-assets/BuildingSearchSelect.tsx
 src/app/layout.tsx                       # App metadata and root layout
 src/app/globals.css                      # Milestone visual foundation
 src/app/components/HubSidebar.tsx        # Collapsible hub sidebar
+src/app/components/HubShell.tsx          # Shared hub page shell
 src/lib/dashboard.ts                     # Dashboard data helpers
+src/lib/property-assets.ts               # Property and major asset queries
 src/lib/supabase.ts                      # Server-side Supabase client
 src/lib/delinquency.ts                   # Delinquency parsing and candidate logic
 src/lib/delinquency-store.ts             # Review queue persistence
@@ -335,6 +367,13 @@ psql "$SUPABASE_DB_URL" -f supabase/migrations/0003_intake_state.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0005_delinquency_actions.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0006_delinquency_actions_email.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0007_delinquency_review_queue.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0008_property_major_assets.sql
+```
+
+Seed major assets demo data (replace property names in the seed file with your live portfolio list):
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed/property_major_assets.sql
 ```
 
 Run expenses-v2 migrations against the secondary tenant replies project:
