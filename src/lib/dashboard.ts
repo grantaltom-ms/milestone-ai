@@ -1,3 +1,4 @@
+import { unstable_cache } from 'next/cache';
 import { getSupabase } from './supabase';
 import { recentTenantReplies, TenantReplyRow } from './supabase-expenses';
 import type { WorkOrderRow } from '@/types/work-order';
@@ -43,7 +44,7 @@ export async function recentWorkOrders(limit = 20): Promise<RecentWorkOrder[]> {
       console.error('[dashboard] recentWorkOrders error', error);
       return [];
     }
-    return (data || []) as RecentWorkOrder[];
+    return (data ?? []) as RecentWorkOrder[];
   } catch (e) {
     console.error('[dashboard] recentWorkOrders unexpected', e);
     return [];
@@ -69,9 +70,9 @@ function monthWindow(date = new Date()) {
   };
 }
 
-export async function getMonthlyMoneyMovement(date = new Date()): Promise<MonthlyMoneyMovement> {
-  const window = monthWindow(date);
-  const demo = {
+async function fetchMonthlyMoneyMovement(): Promise<MonthlyMoneyMovement> {
+  const window = monthWindow();
+  const demo: MonthlyMoneyMovement = {
     ...window,
     chargesAssessed: 1248500,
     moneyReceived: 1107250,
@@ -79,12 +80,29 @@ export async function getMonthlyMoneyMovement(date = new Date()): Promise<Monthl
     collectionRate: 88.7,
     rentRollSnapshotDate: null,
     latestReceiptDate: null,
-    source: 'demo' as const,
+    source: 'demo',
   };
 
   try {
     const supabase = getSupabase();
 
+    // Fire receivables queries immediately — no dependency on snapshot_date
+    const receivablesPromise = supabase
+      .from('receivables_activity')
+      .select('receipt_amount')
+      .gte('receipt_date', window.monthStart)
+      .lt('receipt_date', window.monthEnd);
+
+    // Single-row max-date query instead of fetching all rows to JS
+    const maxDatePromise = supabase
+      .from('receivables_activity')
+      .select('receipt_date')
+      .gte('receipt_date', window.monthStart)
+      .lt('receipt_date', window.monthEnd)
+      .order('receipt_date', { ascending: false })
+      .limit(1);
+
+    // Must fetch snapshot_date first — rent_roll query depends on it
     const { data: latestSnapshots, error: snapshotError } = await supabase
       .from('rent_roll')
       .select('snapshot_date')
@@ -99,26 +117,26 @@ export async function getMonthlyMoneyMovement(date = new Date()): Promise<Monthl
     const rentRollSnapshotDate = latestSnapshots?.[0]?.snapshot_date ?? null;
     if (!rentRollSnapshotDate) return demo;
 
-    const [{ data: rentRows, error: rentError }, { data: receiptRows, error: receiptError }] =
-      await Promise.all([
-        supabase
-          .from('rent_roll')
-          .select('monthly_rent')
-          .eq('snapshot_date', rentRollSnapshotDate)
-          .not('monthly_rent', 'is', null),
-        supabase
-          .from('receivables_activity')
-          .select('receipt_amount, receipt_date')
-          .gte('receipt_date', window.monthStart)
-          .lt('receipt_date', window.monthEnd),
-      ]);
+    const [
+      { data: rentRows, error: rentError },
+      { data: receiptRows, error: receiptError },
+      { data: maxDateRow, error: maxDateError },
+    ] = await Promise.all([
+      supabase
+        .from('rent_roll')
+        .select('monthly_rent')
+        .eq('snapshot_date', rentRollSnapshotDate)
+        .not('monthly_rent', 'is', null),
+      receivablesPromise,
+      maxDatePromise,
+    ]);
 
     if (rentError) {
       console.error('[dashboard] rent_roll summary error', rentError);
       return demo;
     }
-    if (receiptError) {
-      console.error('[dashboard] receivables_activity summary error', receiptError);
+    if (receiptError || maxDateError) {
+      console.error('[dashboard] receivables_activity error', receiptError ?? maxDateError);
       return demo;
     }
 
@@ -130,12 +148,7 @@ export async function getMonthlyMoneyMovement(date = new Date()): Promise<Monthl
       (sum, row) => sum + toNumber(row.receipt_amount),
       0
     );
-    const latestReceiptDate =
-      receiptRows?.reduce<string | null>((latest, row) => {
-        const receiptDate = typeof row.receipt_date === 'string' ? row.receipt_date : null;
-        if (!receiptDate) return latest;
-        return !latest || receiptDate > latest ? receiptDate : latest;
-      }, null) ?? null;
+    const latestReceiptDate = maxDateRow?.[0]?.receipt_date ?? null;
 
     return {
       ...window,
@@ -152,6 +165,13 @@ export async function getMonthlyMoneyMovement(date = new Date()): Promise<Monthl
     return demo;
   }
 }
+
+// Cached for 15 minutes — suitable for a morning-view operations dashboard
+export const getMonthlyMoneyMovement = unstable_cache(
+  fetchMonthlyMoneyMovement,
+  ['monthly-money-movement'],
+  { revalidate: 900 }
+);
 
 export type { TenantReplyRow };
 export type { WorkOrderRow };
