@@ -1,4 +1,6 @@
 import { getMonthlyMoneyMovement } from "@/lib/dashboard";
+import { getReceivablesActivityData, getVacancyData } from "@/lib/operations";
+import { fmtNumber } from "@/lib/format";
 
 function fmt(n: number) {
   return n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
@@ -14,7 +16,11 @@ function shortDate(iso: string | null) {
 }
 
 export default async function Home() {
-  const mm = await getMonthlyMoneyMovement().catch(() => null);
+  const [mm, vacancy] = await Promise.all([
+    getMonthlyMoneyMovement().catch(() => null),
+    getVacancyData(),
+  ]);
+  const receivables = await getReceivablesActivityData();
 
   const moneyStats = mm
     ? [
@@ -66,6 +72,14 @@ export default async function Home() {
               Could not load data — check Supabase environment variables.
             </p>
           )}
+          {receivables.ok && (
+            <a
+              href="/receivables"
+              className="mt-4 inline-flex text-sm font-semibold text-navy hover:underline"
+            >
+              View receivables activity details
+            </a>
+          )}
         </section>
 
         {/* Bulletin board */}
@@ -79,18 +93,24 @@ export default async function Home() {
           </p>
         </section>
 
-        {/* Vacancy */}
         <section className="ms-card">
           <h2 className="ms-card-title">Vacancy</h2>
           <p className="mt-1 text-sm text-ink-muted">
-            Total vacant, ready-to-rent, and in-progress units.
+            Vacant and notice units from the latest vacancy detail feed.
           </p>
           <div className="mt-5 grid grid-cols-3 gap-4">
-            {[
-              { label: "Vacant", value: "—" },
-              { label: "Ready", value: "—" },
-              { label: "In progress", value: "—" },
-            ].map((stat) => (
+            {(vacancy.ok
+              ? [
+                  { label: "Vacant", value: fmtNumber(vacancy.data.vacantUnits) },
+                  { label: "Notice", value: fmtNumber(vacancy.data.noticeUnits) },
+                  { label: "Unrented", value: fmtNumber(vacancy.data.unrentedUnits) },
+                ]
+              : [
+                  { label: "Vacant", value: "—" },
+                  { label: "Notice", value: "—" },
+                  { label: "Unrented", value: "—" },
+                ]
+            ).map((stat) => (
               <div key={stat.label} className="rounded-md border border-line bg-paper p-4">
                 <p className="ms-eyebrow">{stat.label}</p>
                 <p className="mt-2 font-heading text-2xl font-semibold text-navy">
@@ -100,7 +120,9 @@ export default async function Home() {
             ))}
           </div>
           <p className="mt-4 text-xs text-ink-muted">
-            Placeholder — data source to be determined.
+            {vacancy.ok
+              ? `Vacancy detail snapshot ${shortDate(vacancy.data.snapshotDate)}.`
+              : "Could not load vacancy data from the vacancy detail feed."}
           </p>
         </section>
       </div>
