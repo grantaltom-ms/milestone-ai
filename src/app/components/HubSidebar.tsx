@@ -69,6 +69,9 @@ export default function HubSidebar() {
   const [expanded, setExpanded] = useState(true);
   const pathname = usePathname();
 
+  // The sign-in page stands on its own; no navigation until you're in.
+  if (pathname === "/login") return null;
+
   return (
     <aside
       className={`flex h-screen flex-col bg-navy text-white transition-[width] duration-200 ease-in-out ${
@@ -107,6 +110,21 @@ export default function HubSidebar() {
           );
         })}
       </nav>
+
+      <form action="/api/auth/logout" method="post" className="mx-2">
+        <button
+          type="submit"
+          title={expanded ? undefined : "Sign out"}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <svg className="h-5 w-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M15 4h3.5a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-.5.5H15" />
+            <path d="M10 16l-4-4 4-4" />
+            <path d="M6 12h10" />
+          </svg>
+          {expanded && <span>Sign out</span>}
+        </button>
+      </form>
 
       <button
         type="button"
