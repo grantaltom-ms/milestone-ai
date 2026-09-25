@@ -23,6 +23,104 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    label: "Delinquency dashboard",
+    href: "/delinquency-dashboard",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 19V5" />
+        <path d="M4 19h16" />
+        <path d="m7 15 4-4 3 3 5-7" />
+        <path d="M16 7h3v3" />
+      </svg>
+    ),
+  },
+  {
+    label: "Collections",
+    href: "/collections",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 7h16" />
+        <path d="M4 12h16" />
+        <path d="M4 17h10" />
+        <path d="M18 15v4" />
+        <path d="M16 17h4" />
+      </svg>
+    ),
+  },
+  {
+    label: "Receivables",
+    href: "/receivables",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 7h16" />
+        <path d="M4 17h16" />
+        <path d="M7 7v10" />
+        <path d="M17 7v10" />
+        <path d="M9.5 12h5" />
+      </svg>
+    ),
+  },
+  {
+    label: "Daily digest",
+    href: "/daily-digest",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 5h16" />
+        <path d="M4 12h10" />
+        <path d="M4 19h16" />
+        <path d="M17 10l2 2-2 2" />
+      </svg>
+    ),
+  },
+  {
+    label: "Financials",
+    href: "/financials",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 19V5" />
+        <path d="M8 16v-5" />
+        <path d="M12 16V8" />
+        <path d="M16 16v-7" />
+        <path d="M20 19H4" />
+      </svg>
+    ),
+  },
+  {
+    label: "Asset watch",
+    href: "/asset-watch",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M12 3 4 7v6c0 4 3.5 7 8 8 4.5-1 8-4 8-8V7l-8-4Z" />
+        <path d="M9 12h6" />
+        <path d="M12 9v6" />
+      </svg>
+    ),
+  },
+  {
+    label: "Vacancy",
+    href: "/vacancy",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 21V5l8-3 8 3v16" />
+        <path d="M9 21v-7h6v7" />
+        <path d="M8 8h.01" />
+        <path d="M16 8h.01" />
+      </svg>
+    ),
+  },
+  {
+    label: "Manager scorecards",
+    href: "/manager-scorecards",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M16 21v-2a4 4 0 0 0-8 0v2" />
+        <circle cx="12" cy="7" r="4" />
+        <path d="M20 8v6" />
+        <path d="M17 11h6" />
+      </svg>
+    ),
+  },
+  {
     label: "Delinquency review",
     href: "/delinquency",
     icon: ({ className }) => (
