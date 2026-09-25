@@ -11,6 +11,27 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        paper: {
+          DEFAULT: "var(--paper)",
+          raised: "var(--paper-raised)",
+        },
+        navy: {
+          DEFAULT: "var(--navy)",
+          soft: "var(--navy-soft)",
+        },
+        evergreen: {
+          DEFAULT: "var(--evergreen)",
+          soft: "var(--evergreen-soft)",
+        },
+        ink: {
+          DEFAULT: "var(--ink)",
+          muted: "var(--ink-muted)",
+        },
+        line: "var(--line)",
+      },
+      fontFamily: {
+        heading: ["var(--font-playfair)", "Georgia", "serif"],
+        sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
       },
     },
   },

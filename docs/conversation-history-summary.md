@@ -293,16 +293,19 @@ Important caveat:
 
 This definition treats charges assessed as scheduled monthly rent from the latest rent roll. It may not include all utility, fee, or other posted tenant charges. For a true all-in assessed charge total, Milestone will likely need a dedicated AppFolio tenant ledger/charge export or a Supabase table that stores posted tenant charges.
 
-## Open decisions
+## Decisions
+
+Resolved (2026-06-14):
+
+- Sidebar defaults expanded.
+- Delinquency report snapshots are retained for six weeks (42 days) before old snapshots are dropped. The snapshots are the raw AppFolio delinquency reports stored on each delinquency cron run (weekly Tuesdays + monthly on the 11th); run and candidate rows remain the durable audit trail.
+- Bulletin board data lives in Supabase for now (may change later).
+- Vacancy readiness comes from AppFolio.
+- Charges assessed should prefer the month's delinquency data if accurate enough; a few options should be tried to find the most accurate source. The rent-roll-based number remains the fallback until validated.
 
 Still to decide:
 
-- Whether the sidebar defaults expanded or collapsed.
-- How long delinquency report snapshots should be retained.
-- Whether indefinite exclusions should be property-specific, occupancy-specific, or tenant-specific.
-- Where bulletin board data should live: Supabase, Google Calendar, manual app entry, or a combination.
-- Where vacancy readiness should come from: AppFolio, a manual tracker, or another source.
-- Whether charges assessed should remain rent-roll-based or switch to a true posted-charge ledger source.
+- Whether indefinite exclusions should be property-specific, occupancy-specific, or tenant-specific. Set aside for now.
 
 ## Verification performed
 
