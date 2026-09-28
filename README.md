@@ -14,6 +14,7 @@ Built so far:
 - Collapsible left sidebar.
 - Home dashboard with money movement, bulletin board, and vacancy sections.
 - Supabase-backed money movement card.
+- Capital project history by building (dates, vendors, costs, status).
 - Delinquency review queue architecture.
 - Candidate action endpoints for email, SMS, POV drafts, and exclusions.
 - Cached AppFolio delinquency report snapshots.
@@ -79,6 +80,45 @@ The card also calculates:
 Important caveat:
 
 The current "charges assessed" number is based on scheduled monthly rent from rent roll. It may not include all utility, fee, or other posted tenant charges. For true all-in assessed charges, the app will likely need a dedicated AppFolio tenant ledger/charge export or a Supabase table for posted tenant charges.
+
+## Capital Projects
+
+The capital project history page is available at:
+
+```text
+/capital-projects
+```
+
+Purpose:
+
+- Track major building work over time (roof replacements, boilers, plumbing, electrical, heat, rehabs, and more).
+- Store project date, vendor, cost, status, and notes.
+- Support multiple projects per building and category (full history, not just the latest year).
+- Allow managers to add, edit, and delete project records in the app.
+
+Data model:
+
+- `capital_projects` — durable project history rows linked to `properties.id` (bigint).
+- Categories include roof, boiler, plumbing, electrical, heat, water heater, elevator, fire safety, windows, exterior paint, siding, parking, landscaping, unit rehab, and other.
+- Statuses: planned, in_progress, completed, cancelled.
+
+API:
+
+```text
+GET    /api/capital-projects?propertyId=<id>
+POST   /api/capital-projects
+PATCH  /api/capital-projects/[id]
+DELETE /api/capital-projects/[id]
+```
+
+Setup:
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0009_capital_projects.sql
+psql "$SUPABASE_DB_URL" -f supabase/seed/capital_projects.sql
+```
+
+Or paste those SQL files into the Supabase SQL Editor. The seed also migrates older `property_major_assets` snapshot rows into capital project history when that table exists.
 
 ## Delinquency Review Queue
 
@@ -335,6 +375,13 @@ psql "$SUPABASE_DB_URL" -f supabase/migrations/0003_intake_state.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0005_delinquency_actions.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0006_delinquency_actions_email.sql
 psql "$SUPABASE_DB_URL" -f supabase/migrations/0007_delinquency_review_queue.sql
+psql "$SUPABASE_DB_URL" -f supabase/migrations/0009_capital_projects.sql
+```
+
+Seed capital project sample/history data (optional):
+
+```bash
+psql "$SUPABASE_DB_URL" -f supabase/seed/capital_projects.sql
 ```
 
 Run expenses-v2 migrations against the secondary tenant replies project:
