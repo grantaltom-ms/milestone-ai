@@ -97,6 +97,19 @@ const NAV_ITEMS: NavItem[] = [
     ),
   },
   {
+    label: "Capital projects",
+    href: "/capital-projects",
+    icon: ({ className }) => (
+      <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 20h16" />
+        <path d="M6 20V9l6-4 6 4v11" />
+        <path d="M9 20v-5h6v5" />
+        <path d="M10 11h.01" />
+        <path d="M14 11h.01" />
+      </svg>
+    ),
+  },
+  {
     label: "Vacancy",
     href: "/vacancy",
     icon: ({ className }) => (
